@@ -405,6 +405,9 @@ data CreateApplicationCommand
         -- in a guild.
         -- Set of permissions represented as a bit set.
         createDefaultMemberPermissions :: Maybe T.Text,
+        -- | Whether it is allowed to run this command in a DM.
+        -- Only applicable if the command is global.
+        createDmPermission :: Maybe Bool,
         -- | Whether the command is enabled by default when the application is added
         -- to a guild.
         createDefaultPermission :: Bool
@@ -442,6 +445,7 @@ instance ToJSON CreateApplicationCommand where
               ("description", toMaybeJSON createDescription),
               ("options", toJSON <$> createOptions),
               ("default_member_permissions", toMaybeJSON createDefaultMemberPermissions),
+              ("dm_permission", toMaybeJSON createDmPermission),
               ("default_permission", toMaybeJSON createDefaultPermission),
               ("type", Just $ Number 1)
             ]
@@ -479,7 +483,7 @@ nameIsValid isChatInput name = l >= 1 && l <= 32 && (isChatInput <= T.all (`elem
 -- than or equal to 100 characters.
 createChatInput :: T.Text -> T.Text -> Maybe CreateApplicationCommand
 createChatInput name desc
-  | nameIsValid True name && not (T.null desc) && T.length desc <= 100 = Just $ CreateApplicationCommandChatInput name desc Nothing Nothing True
+  | nameIsValid True name && not (T.null desc) && T.length desc <= 100 = Just $ CreateApplicationCommandChatInput name desc Nothing Nothing Nothing True
   | otherwise = Nothing
 
 -- | Create the basics for a user command. Use record overwriting to enter the
